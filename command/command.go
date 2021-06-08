@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/arifusr/mbkm-cli/file"
+	"gorm.io/gorm"
 )
 
 type Command struct {
@@ -14,7 +15,7 @@ type Command struct {
 	File             *file.File
 }
 
-func NewCommand(args []string) *Command {
+func NewCommand(args []string, db *gorm.DB) *Command {
 	command := &Command{
 		Args: args,
 		File: file.NewFile(),
