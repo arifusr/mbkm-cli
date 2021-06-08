@@ -4,16 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+
+	"github.com/arifusr/mbkm-cli/file"
 )
 
 type Command struct {
 	CommandAvaliable map[string]func() error
 	Args             []string
+	File             *file.File
 }
 
 func NewCommand(args []string) *Command {
 	command := &Command{
 		Args: args,
+		File: file.NewFile(),
 	}
 	commandAvaliable := make(map[string]func() error)
 	commandAvaliable["migrate:generate"] = command.MigrationGenerate
@@ -49,6 +53,14 @@ func (c *Command) MigrationGenerateName() error {
 		fmt.Println("only underscore allowed")
 		return errors.New("expected options")
 	}
+
+	// create file with signature of date
+
+	filename := "filename"
+	c.File.SetContent("aaaa")
+	c.File.SetName(filename)
+	c.File.SetDirPath("./")
+	c.File.WriteFile()
 
 	return nil
 }
