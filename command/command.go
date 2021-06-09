@@ -44,17 +44,22 @@ func (c *Command) MigrationRun() error {
 	// get migration history
 	var histories []model.MigrationHistory
 	c.DB.Model(&model.MigrationHistory{}).Find(&histories)
-
+	contain := make(map[string]bool)
+	for _, hi := range histories {
+		contain[hi.MigrationID] = true
+	}
 	folder := file.NewFolder()
 	files := folder.GetListFile()
 	// setiap file yg ditemukan running migrate
 	for _, fi := range files {
-
+		if contain[fi] {
+			continue
+		}
 		t, _ := texttemplate.New("mbkm-temp").Parse(template.MbkmTemp)
 		data := struct {
-			FileName string
+			FileStruct string
 		}{
-			FileName: strings.Replace(fi, ".go", "", 1),
+			FileStruct: strcase.ToCamel(strings.Replace(fi[20:], ".go", "", 1)),
 		}
 		var tpl bytes.Buffer
 		t.Execute(&tpl, data)
@@ -68,7 +73,7 @@ func (c *Command) MigrationRun() error {
 		// run exec
 		cmd := exec.Command("go", "run", "./mbkm_temp.go")
 
-		err := cmd.Run()
+		out, err := cmd.Output()
 
 		if err != nil {
 			fmt.Print(err.Error())
@@ -76,6 +81,7 @@ func (c *Command) MigrationRun() error {
 			log.Fatal(err)
 
 		}
+		fmt.Print(string(out))
 
 		// jika berahsil migrate tambahkan  file ke migration history
 		if err := c.DB.Create(&model.MigrationHistory{
@@ -84,6 +90,9 @@ func (c *Command) MigrationRun() error {
 			fmt.Print(err.Error())
 		}
 	}
+	// setelah iterasi hapus mbkm_temp
+	os.Remove("mbkm_temp.go")
+
 	return nil
 }
 

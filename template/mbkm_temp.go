@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	migration "github.com/arifusr/mbkm-cli/script/migration/{{.FileName}}"
+	"github.com/arifusr/mbkm-cli/script/migration"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,7 +20,7 @@ func main() {
 		return
 	}
 	db, _ := BuildDb()
-	model := &migration.NewMigration()
+	model := &migration.{{.FileStruct}}{}
 	model.Up(db)
 }
 
