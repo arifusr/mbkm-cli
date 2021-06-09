@@ -109,7 +109,7 @@ func (c *Command) Undo() error {
 }
 
 func (c *Command) GetVersion() error {
-	fmt.Print("v1.0.4")
+	fmt.Print("v1.1.0")
 	return nil
 }
 
