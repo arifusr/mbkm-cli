@@ -14,4 +14,8 @@ func (m *{{.FileName}}) Up(db *gorm.DB) error {
 	// TODO - migrate here
 	return nil
 }
+func (m *{{.FileName}}) Down(db *gorm.DB) error {
+	// TODO - migrate here
+	return nil
+}
 `

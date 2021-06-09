@@ -38,8 +38,74 @@ func NewCommand(args []string, db *gorm.DB) *Command {
 	commandAvaliable["migrate:generate"] = command.MigrationGenerate
 	commandAvaliable["migrate:run"] = command.MigrationRun
 	commandAvaliable["version"] = command.GetVersion
+	commandAvaliable["migrate:undo"] = command.Undo
 	command.CommandAvaliable = commandAvaliable
 	return command
+}
+
+func (c *Command) Undo() error {
+	// read last history
+	var histories []model.MigrationHistory
+	c.DB.Model(&model.MigrationHistory{}).Find(&histories)
+	if len(histories) < 1 {
+		return nil
+	}
+	lasthistory := histories[len(histories)-1]
+	// get ModuleName
+	f, err := os.Open("go.mod")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	b, err := ioutil.ReadAll(f)
+	gomod := string(b)
+
+	var regex, _ = regexp.Compile(`module (.*)`)
+
+	var str = regex.FindStringSubmatch(gomod)
+	ModuleName := str[1]
+	// running Down
+	data := struct {
+		FileStruct string
+		ModuleName string
+	}{
+		FileStruct: strcase.ToCamel(strings.Replace(lasthistory.MigrationID[20:], ".go", "", 1)),
+		ModuleName: ModuleName,
+	}
+	t, _ := texttemplate.New("mbkm-down").Parse(template.MbkmDown)
+	var tpl bytes.Buffer
+	t.Execute(&tpl, data)
+	// create mbkm_temp.go
+	fa := file.NewFile()
+	fa.SetDirPath("./")
+	fa.SetContent(tpl.String())
+	fa.SetName("mbkm_temp.go")
+
+	fa.WriteFile()
+	// run exec
+	cmd := exec.Command("go", "run", "./mbkm_temp.go")
+
+	out, err := cmd.Output()
+
+	if err != nil {
+		fmt.Print(err.Error())
+
+		log.Fatal(err)
+
+	}
+	fmt.Print(string(out))
+
+	// jika berahsil migrate hapus history id
+	if err := c.DB.Where("migration_id = ?", lasthistory.MigrationID).Delete(&lasthistory).Error; err != nil {
+		fmt.Print(err.Error())
+	}
+
+	return nil
 }
 
 func (c *Command) GetVersion() error {
