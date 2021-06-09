@@ -36,8 +36,14 @@ func NewCommand(args []string, db *gorm.DB) *Command {
 	commandAvaliable := make(map[string]func() error)
 	commandAvaliable["migrate:generate"] = command.MigrationGenerate
 	commandAvaliable["migrate:run"] = command.MigrationRun
+	commandAvaliable["version"] = command.GetVersion
 	command.CommandAvaliable = commandAvaliable
 	return command
+}
+
+func (c *Command) GetVersion() error {
+	fmt.Print("v1.0.1")
+	return nil
 }
 
 func (c *Command) MigrationRun() error {
