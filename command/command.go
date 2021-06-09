@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/arifusr/mbkm-cli/file"
+	"github.com/arifusr/mbkm-cli/model"
 	"gorm.io/gorm"
 )
 
@@ -15,17 +16,31 @@ type Command struct {
 	CommandAvaliable map[string]func() error
 	Args             []string
 	File             *file.File
+	DB               *gorm.DB
 }
 
 func NewCommand(args []string, db *gorm.DB) *Command {
 	command := &Command{
 		Args: args,
 		File: file.NewFile(),
+		DB:   db,
 	}
 	commandAvaliable := make(map[string]func() error)
 	commandAvaliable["migrate:generate"] = command.MigrationGenerate
+	commandAvaliable["migrate:run"] = command.MigrationRun
 	command.CommandAvaliable = commandAvaliable
 	return command
+}
+
+func (c *Command) MigrationRun() error {
+	// get migration history
+	var histories []model.MigrationHistory
+	c.DB.Model(&model.MigrationHistory{}).Find(&histories)
+
+	folder := file.NewFolder()
+	files := folder.GetListFile()
+	fmt.Print(files)
+	return nil
 }
 
 func (c *Command) MigrationGenerate() error {
