@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -42,7 +43,7 @@ func NewCommand(args []string, db *gorm.DB) *Command {
 }
 
 func (c *Command) GetVersion() error {
-	fmt.Print("v1.0.3")
+	fmt.Print("v1.0.4")
 	return nil
 }
 
@@ -56,6 +57,25 @@ func (c *Command) MigrationRun() error {
 	}
 	folder := file.NewFolder()
 	files := folder.GetListFile()
+
+	// get ModuleName
+	f, err := os.Open("go.mod")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	b, err := ioutil.ReadAll(f)
+	gomod := string(b)
+
+	var regex, _ = regexp.Compile(`module (.*)`)
+
+	var str = regex.FindStringSubmatch(gomod)
+	ModuleName := str[1]
 	// setiap file yg ditemukan running migrate
 	for _, fi := range files {
 		if contain[fi] {
@@ -64,8 +84,10 @@ func (c *Command) MigrationRun() error {
 		t, _ := texttemplate.New("mbkm-temp").Parse(template.MbkmTemp)
 		data := struct {
 			FileStruct string
+			ModuleName string
 		}{
 			FileStruct: strcase.ToCamel(strings.Replace(fi[20:], ".go", "", 1)),
+			ModuleName: ModuleName,
 		}
 		var tpl bytes.Buffer
 		t.Execute(&tpl, data)

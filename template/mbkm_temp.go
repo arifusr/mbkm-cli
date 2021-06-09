@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/arifusr/mbkm-cli/script/migration"
+	"{{.ModuleName}}/script/migration"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
