@@ -1,14 +1,21 @@
 package command
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"os"
+	"os/exec"
 	"regexp"
+	"strings"
 	"time"
+
+	texttemplate "text/template"
 
 	"github.com/arifusr/mbkm-cli/file"
 	"github.com/arifusr/mbkm-cli/model"
+	"github.com/arifusr/mbkm-cli/template"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +46,43 @@ func (c *Command) MigrationRun() error {
 
 	folder := file.NewFolder()
 	files := folder.GetListFile()
-	fmt.Print(files)
+	// setiap file yg ditemukan running migrate
+	for _, fi := range files {
+
+		t, _ := texttemplate.New("mbkm-temp").Parse(template.MbkmTemp)
+		data := struct {
+			FileName string
+		}{
+			FileName: strings.Replace(fi, ".go", "", 1),
+		}
+		var tpl bytes.Buffer
+		t.Execute(&tpl, data)
+		// create mbkm_temp.go
+		f := file.NewFile()
+		f.SetDirPath("./")
+		f.SetContent(tpl.String())
+		f.SetName("mbkm_temp.go")
+
+		f.WriteFile()
+		// run exec
+		cmd := exec.Command("go", "run", "./mbkm_temp.go")
+
+		err := cmd.Run()
+
+		if err != nil {
+			fmt.Print(err.Error())
+
+			log.Fatal(err)
+
+		}
+
+		// jika berahsil migrate tambahkan  file ke migration history
+		if err := c.DB.Create(&model.MigrationHistory{
+			MigrationID: fi,
+		}).Error; err != nil {
+			fmt.Print(err.Error())
+		}
+	}
 	return nil
 }
 
