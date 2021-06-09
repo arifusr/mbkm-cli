@@ -1,10 +1,12 @@
-package main
+package template
+
+const MbkmTemp = `package main
 
 import (
 	"fmt"
 	"os"
 
-	migration "github.com/arifusr/mbkm-cli/script/migration/2021_06_09_07_56_45_aaa.go"
+	migration "github.com/arifusr/mbkm-cli/script/migration/{{.FileName}}"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -39,4 +41,4 @@ func BuildDb() (*gorm.DB, error) {
 		panic("failed to connect database")
 	}
 	return db, err
-}
+}`
