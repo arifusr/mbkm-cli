@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/arifusr/mbkm-cli/command"
+	"github.com/arifusr/mbkm-cli/config"
 	"github.com/arifusr/mbkm-cli/validation"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -13,8 +14,18 @@ import (
 )
 
 func main() {
+	// load .env
 	if err := godotenv.Load(); err != nil {
 		fmt.Print("error load env")
+		return
+	}
+	// load .mbkm-cli
+	if err := godotenv.Load(".mbkm-cli"); err != nil {
+		fmt.Print("please create .mbkm-cli to setup your migration directory")
+		return
+	}
+	configenv := config.NewConfig()
+	if err := configenv.ValidateConfig(); err != nil {
 		return
 	}
 	db, _ := buildDb()

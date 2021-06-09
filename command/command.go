@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 
@@ -61,7 +62,7 @@ func (c *Command) MigrationGenerateName() error {
 	filename := now.Format("2006_01_02_15_04_05_") + c.Args[3] + ".go"
 	c.File.SetContent("aaaa")
 	c.File.SetName(filename)
-	c.File.SetDirPath("./")
+	c.File.SetDirPath(os.Getenv("MIGRATION_DIRECTORY") + "/")
 	c.File.WriteFile()
 
 	return nil
