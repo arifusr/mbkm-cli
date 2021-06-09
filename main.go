@@ -28,7 +28,7 @@ func main() {
 	if err := configenv.ValidateConfig(); err != nil {
 		return
 	}
-	db, _ := buildDb()
+	db, _ := BuildDb()
 	args := os.Args
 	cmd := command.NewCommand(args, db)
 
@@ -40,7 +40,7 @@ func main() {
 	cmd.CommandAvaliable[args[1]]()
 }
 
-func buildDb() (*gorm.DB, error) {
+func BuildDb() (*gorm.DB, error) {
 	sqlCfg := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("DATABASE_HOST"),
 		os.Getenv("DATABASE_PORT"),
