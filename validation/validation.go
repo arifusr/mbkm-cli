@@ -20,8 +20,9 @@ func NewValidator(c *command.Command) *Validator {
 func (v *Validator) ValidateCommand(cmd []string) error {
 	if len(cmd) < 2 {
 		fmt.Println("use the available command")
-		fmt.Println("migrate:generate")
-		fmt.Println("migrate:run")
+		for key := range v.Command.CommandAvaliable {
+			fmt.Print(key)
+		}
 		return errors.New("expected args 1")
 	}
 	for key := range v.Command.CommandAvaliable {
@@ -30,7 +31,8 @@ func (v *Validator) ValidateCommand(cmd []string) error {
 		}
 	}
 	fmt.Println("use the available command")
-	fmt.Println("migrate:generate")
-	fmt.Println("migrate:run")
+	for key := range v.Command.CommandAvaliable {
+		fmt.Print(key)
+	}
 	return errors.New("command not found")
 }
