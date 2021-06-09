@@ -9,19 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type SimpleModel struct {
+type {{.FileName}} struct {
 }
 
-func (s *SimpleModel) TableName() string {
-	return "tbl_simple_model"
-}
-
-type Aaa struct {
-}
-
-func (m *Aaa) Up(db *gorm.DB) error {
-	err := db.AutoMigrate(SimpleModel{})
-	fmt.Print(err)
+func (m *{{.FileName}}) Up(db *gorm.DB) error {
+	// TODO - migrate here
 	return nil
 }
 `
