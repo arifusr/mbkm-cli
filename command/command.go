@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/arifusr/mbkm-cli/file"
 	"gorm.io/gorm"
@@ -56,8 +57,8 @@ func (c *Command) MigrationGenerateName() error {
 	}
 
 	// create file with signature of date
-
-	filename := "filename"
+	now := time.Now()
+	filename := now.Format("2006_01_02_15_04_05_") + c.Args[3] + ".go"
 	c.File.SetContent("aaaa")
 	c.File.SetName(filename)
 	c.File.SetDirPath("./")
