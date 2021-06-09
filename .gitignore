@@ -1,3 +1,4 @@
 .env
 .mbkm-cli
 mbkm-temp.go
+script/migration/*
