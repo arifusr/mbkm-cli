@@ -42,7 +42,7 @@ func NewCommand(args []string, db *gorm.DB) *Command {
 }
 
 func (c *Command) GetVersion() error {
-	fmt.Print("v1.0.1")
+	fmt.Print("v1.0.3")
 	return nil
 }
 
