@@ -4,8 +4,6 @@ const MigrationFile = `
 package migration
 
 import (
-	"fmt"
-
 	"gorm.io/gorm"
 )
 
