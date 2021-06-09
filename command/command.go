@@ -16,6 +16,7 @@ import (
 	"github.com/arifusr/mbkm-cli/file"
 	"github.com/arifusr/mbkm-cli/model"
 	"github.com/arifusr/mbkm-cli/template"
+	"github.com/iancoleman/strcase"
 	"gorm.io/gorm"
 )
 
@@ -109,16 +110,24 @@ func (c *Command) MigrationGenerateName() error {
 		fmt.Println("expected file name")
 		return errors.New("expected options")
 	}
-	re := regexp.MustCompile("^[a-zA-Z0-9_]*$")
+	re := regexp.MustCompile("^[a-zA-Z_]*$")
 	if !re.MatchString(c.Args[3]) {
-		fmt.Println("only underscore allowed")
+		fmt.Println("only underscore and alpha allowed")
 		return errors.New("expected options")
 	}
 
 	// create file with signature of date
 	now := time.Now()
+	t, _ := texttemplate.New("mbkm-temp").Parse(template.MigrationFile)
+	data := struct {
+		FileName string
+	}{
+		FileName: strcase.ToCamel(c.Args[3]),
+	}
+	var tpl bytes.Buffer
+	t.Execute(&tpl, data)
 	filename := now.Format("2006_01_02_15_04_05_") + c.Args[3] + ".go"
-	c.File.SetContent("aaaa")
+	c.File.SetContent(tpl.String())
 	c.File.SetName(filename)
 	c.File.SetDirPath(os.Getenv("MIGRATION_DIRECTORY") + "/")
 	c.File.WriteFile()
